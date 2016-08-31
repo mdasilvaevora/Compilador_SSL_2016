@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 int main(){
-printf("esto anda\n");
+printf("esto no anda\n");
 
 int i=0;
 
