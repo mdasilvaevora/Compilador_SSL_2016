@@ -14,11 +14,25 @@ typedef enum{
 	COMA, ASIGNACION, SUMA, RESTA, FDT, ERRORLEXICO
 	} TOKEN;
 
+typedef struct{
+    char identificador [TAMLEX];
+    TOKEN tok;
+    }RegTS;
+RegTS TS[1000]={{"inicio",INICIO},{"fin",FIN},{"leer",LEER},{"escribir",ESCRIBIR},{"$",99}};
+                                                                                  //Centinela de fin de TS
+
 char buffer[TAMLEX];
 
+
 TOKEN scanner();
-int columna(int c);
-int estadoFinal(int e);
+int columna(int);
+int estadoFinal(int);
+TOKEN esReservada();
+
+//Para la Tabla de Simbolos
+int buscar(char*,RegTS*,TOKEN*);
+void colocar(char*,RegTS*);
+
 
 int main(int argc, char * argv[])
 {
@@ -61,8 +75,6 @@ return -5;
 return 0;
 }
 
-
-
 int columna(int c){
 	if(isalpha(c)) return 0; // Si es una letra
 	if(isdigit(c)) return 1; // Si es un digito
@@ -82,6 +94,15 @@ int estadoFinal(int e){
 	if(e == 0 || e == 1 || e == 3 || e == 11 || e == 14) return 0;
 	return 1;
 }
+
+TOKEN esReservada(){
+    if(strcmp(buffer,"inicio")==0) return INICIO;
+    if(strcmp(buffer,"fin")==0) return FIN;
+    if(strcmp(buffer,"leer")==0) return LEER;
+    if(strcmp(buffer,"escribir")==0) return ESCRIBIR;
+    return ID;
+}
+
 TOKEN scanner(){
 	static int tabla[NUMESTADOS][NUMCOLS] =
             //L D + - ( ) , ; : = EOF sp OTRO
@@ -90,26 +111,27 @@ TOKEN scanner(){
 			     {1,1,2,2,2,2,2,2,2,2,2,2,2},
 /*ID*/	         {14,14,14,14,14,14,14,14,14,14,14,14,14},
 		     	 {4, 3,4,4,4,4,4,4,4,4,4,4,4},
-/*ID*/           {14,14,14,14,14,14,14,14,14,14,14,14,14},
-/*ID*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-/*ID*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-/*ID*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-/*ID*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-/*ID*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-/*ID*/			 {14,14,14,14,14,14,14,14,14,12,14,14,14},
-/*ID*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-/*ID*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-/*ID*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14}
+/*CTE*/          {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*+*/		     {14,14,14,14,14,14,14,14,14,14,14,14,14},
+                 {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*-*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*(*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*)*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*,*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*;*/			 {14,14,14,14,14,14,14,14,14,12,14,14,14},
+/*ASIG*/         {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*fdt*/		     {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*Err*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14}
             };
 
-	int caracter,columna,estado,i;
+	int caracter,col,estado,i;
 	i=estado=0;
 
 	do{
 		caracter = fgetc(in);
-		columna = columna(caracter);
-		estado = tabla[estado][columna];
-		if(columna != 11){
+		col = columna(caracter);
+		estado = tabla[estado][col];
+		if(col != 11){
  			buffer[i] = caracter;
 			i++;
 		}
@@ -118,16 +140,20 @@ TOKEN scanner(){
 	buffer[i] = '\0';
 
 	switch(estado){
-		case 2: if(columna != 11){
+		case 2: if(col != 11){
 			ungetc(caracter,in);
 			buffer[i-1] = '\0';
 			}
+			if(esReservada()==ID && strlen(buffer)<32){ //Si es ID lo coloco en la TS
+			colocar(buffer,TS);
 			return ID;
-		case 4: if(columna != 11){
+			}
+			return esReservada();
+		case 4: if(col != 11){
 			ungetc(caracter,in);
 			buffer[i-1] = '\0';
 			}
-			return  CONSTANTE;
+			return  CONSTANTE; //Falta llevar los digitos a la TS
 		case 5: return SUMA;
 		case 6: return RESTA;
 		case 7: return PARENIZQUIERDO;
@@ -139,4 +165,33 @@ TOKEN scanner(){
 		case 14: return ERRORLEXICO;
 	}
 	return 0;
+}
+
+int buscar(char * id, RegTS * TS, TOKEN * t)
+{
+    /* Determina si un identificador esta en la TS */
+    int i = 0;
+    while ( strcmp("$", TS[i].identificador) ) //Mientras no encuentre el centinela
+    {
+    if ( !strcmp(id, TS[i].identificador) ) //Cuando encuentra el identificador
+    {
+    *t = TS[i].tok;                           //Actualiza el Token a ID
+    return 1;
+    }
+    i++;
+    }
+    return 0;
+}
+
+void colocar(char * id, RegTS * TS)
+{
+    /* Agrega un ID a la TS */
+    int i = 4;
+    while ( strcmp("$", TS[i].identificador) ) i++; //Mientras no encuentre la centinela avanza en el array
+    if ( i < 999 )                                  // Controla que no se exceda del tamanio maximo del array
+    {
+    strcpy(TS[i].identificador, id );               //Actualiza el nombre del identificador y el token
+    TS[i].tok= ID;
+    strcpy(TS[++i].identificador, "$" );             //Avanza y coloca el centinela
+    }
 }
