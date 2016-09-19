@@ -42,37 +42,35 @@ int main(int argc, char * argv[])
 
     //Validaciones
 
-if ( argc == 1 )
-{
-printf("Debe ingresar el nombre del archivo fuente en la linea de comandos\n");
- return -1;
-}
+	if ( argc == 1 ){
+		printf("Debe ingresar el nombre del archivo fuente en la linea de comandos\n");
+		 return -1;
+	}
 
-if ( argc != 2 )
-{
-printf("Numero incorrecto de argumentos\n");
-return -2;
-}
-    strcpy(nombreArchivo, argv[1]);
-    lenNombreArchivo = strlen(nombreArchivo);
-if ( lenNombreArchivo > TAMNOM )
-{
-printf("Nombre incorrecto del Archivo Fuente\n");
-return -3;
-}
+	if ( argc != 2 ){
+		printf("Numero incorrecto de argumentos\n");
+		return -2;
+	}
 
-if ( nombreArchivo[lenNombreArchivo-1] != 'm' || nombreArchivo[lenNombreArchivo-2] != '.' )
-{
-printf("El nombre del Archivo Fuente debe contener una extension .m \n");
-return -4;
-}
-if ( (in = fopen(nombreArchivo, "r") ) == NULL )
-{
-printf("No se pudo abrir archivo fuente\n");
-return -5;
-}
+    	strcpy(nombreArchivo, argv[1]);
+    	lenNombreArchivo = strlen(nombreArchivo);
 
-return 0;
+	if ( lenNombreArchivo > TAMNOM ){
+		printf("Nombre incorrecto del Archivo Fuente\n");
+		return -3;
+	}
+
+	if ( nombreArchivo[lenNombreArchivo-1] != 'm' || nombreArchivo[lenNombreArchivo-2] != '.' ){
+		printf("El nombre del Archivo Fuente debe contener una extension .m \n");
+		return -4;
+	}
+
+	if ( (in = fopen(nombreArchivo, "r") ) == NULL ){
+		printf("No se pudo abrir archivo fuente\n");
+		return -5;
+	}
+
+	return 0;
 }
 
 int columna(int c){
@@ -108,21 +106,21 @@ TOKEN scanner(){
             //L D + - ( ) , ; : = EOF sp OTRO
 			{
 			    {1,3,5,6,7,8,9,10,11,14,13,0,14},
-			     {1,1,2,2,2,2,2,2,2,2,2,2,2},
-/*ID*/	         {14,14,14,14,14,14,14,14,14,14,14,14,14},
-		     	 {4, 3,4,4,4,4,4,4,4,4,4,4,4},
-/*CTE*/          {14,14,14,14,14,14,14,14,14,14,14,14,14},
-/*+*/		     {14,14,14,14,14,14,14,14,14,14,14,14,14},
-                 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-/*-*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-/*(*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-/*)*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-/*,*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-/*;*/			 {14,14,14,14,14,14,14,14,14,12,14,14,14},
-/*ASIG*/         {14,14,14,14,14,14,14,14,14,14,14,14,14},
-/*fdt*/		     {14,14,14,14,14,14,14,14,14,14,14,14,14},
-/*Err*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14}
-            };
+			    {1,1,2,2,2,2,2,2,2,2,2,2,2},
+/*ID*/	         	    {14,14,14,14,14,14,14,14,14,14,14,14,14},
+		     	    {4, 3,4,4,4,4,4,4,4,4,4,4,4},
+/*CTE*/          	    {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*+*/		     	    {14,14,14,14,14,14,14,14,14,14,14,14,14},
+                 	    {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*-*/			    {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*(*/			    {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*)*/			    {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*,*/			    {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*;*/			    {14,14,14,14,14,14,14,14,14,12,14,14,14},
+/*ASIG*/         	    {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*fdt*/		     	    {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*Err*/			    {14,14,14,14,14,14,14,14,14,14,14,14,14}
+            		};
 
 	int caracter,col,estado,i;
 	i=estado=0;
@@ -153,7 +151,8 @@ TOKEN scanner(){
 			ungetc(caracter,in);
 			buffer[i-1] = '\0';
 			}
-			return  CONSTANTE; //Falta llevar los digitos a la TS
+			colocar(buffer,TS);//Lleva los digitos a la TS
+			return CONSTANTE;
 		case 5: return SUMA;
 		case 6: return RESTA;
 		case 7: return PARENIZQUIERDO;
@@ -188,7 +187,7 @@ void colocar(char * id, RegTS * TS)
     /* Agrega un ID a la TS */
     int i = 4;
     while ( strcmp("$", TS[i].identificador) ) i++; //Mientras no encuentre la centinela avanza en el array
-    if ( i < 999 )                                  // Controla que no se exceda del tamanio maximo del array
+    if ( i < 999 )                                  // Controla que no se exceda del tamaño maximo del array
     {
     strcpy(TS[i].identificador, id );               //Actualiza el nombre del identificador y el token
     TS[i].tok= ID;
