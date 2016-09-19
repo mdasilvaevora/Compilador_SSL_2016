@@ -23,7 +23,6 @@ int estadoFinal(int e);
 int main(int argc, char * argv[])
 {
 
-    TOKEN tok;
     char nombreArchivo[TAMNOM];
     int lenNombreArchivo;
 
@@ -65,8 +64,8 @@ return 0;
 
 
 int columna(int c){
-	if(isalpha(c)) return 0;
-	if(isdigit(c)) return 1;
+	if(isalpha(c)) return 0; // Si es una letra
+	if(isdigit(c)) return 1; // Si es un digito
 	if(c == '+') return 2;
 	if(c == '-') return 3;
 	if(c == '(') return 4;
@@ -76,7 +75,7 @@ int columna(int c){
 	if(c == ':') return 8;
 	if(c == '=') return 9;
 	if(c == EOF) return 10;
-	if(isspace(c)) return 11;
+	if(isspace(c)) return 11; //Si es un espacio
 	return 12;
 }
 int estadoFinal(int e){
@@ -85,30 +84,33 @@ int estadoFinal(int e){
 }
 TOKEN scanner(){
 	static int tabla[NUMESTADOS][NUMCOLS] =
-			{{1,3,5,6,7,8,9,10,11,14,13,0,14},
-			 {1,1,2,2,2,2,2,2,2,2,2,2,2},
-			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-			 {4,3,4,4,4,4,4,4,4,4,4,4,4},
-			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-			 {14,14,14,14,14,14,14,14,14,12,14,14,14},
-			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
-			 {14,14,14,14,14,14,14,14,14,14,14,14,14}};
+            //L D + - ( ) , ; : = EOF sp OTRO
+			{
+			    {1,3,5,6,7,8,9,10,11,14,13,0,14},
+			     {1,1,2,2,2,2,2,2,2,2,2,2,2},
+/*ID*/	         {14,14,14,14,14,14,14,14,14,14,14,14,14},
+		     	 {4, 3,4,4,4,4,4,4,4,4,4,4,4},
+/*ID*/           {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*ID*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*ID*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*ID*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*ID*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*ID*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*ID*/			 {14,14,14,14,14,14,14,14,14,12,14,14,14},
+/*ID*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*ID*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14},
+/*ID*/			 {14,14,14,14,14,14,14,14,14,14,14,14,14}
+            };
 
-	int car,col,estado,i;
+	int caracter,columna,estado,i;
 	i=estado=0;
 
 	do{
-		car = fgetc(in);
-		col = columna(car);
-		estado = tabla[estado][col];
-		if(col != 11){
- 			buffer[i] = car;
+		caracter = fgetc(in);
+		columna = columna(caracter);
+		estado = tabla[estado][columna];
+		if(columna != 11){
+ 			buffer[i] = caracter;
 			i++;
 		}
 	}
@@ -116,13 +118,13 @@ TOKEN scanner(){
 	buffer[i] = '\0';
 
 	switch(estado){
-		case 2: if(col != 11){
-			ungetc(car,in);
+		case 2: if(columna != 11){
+			ungetc(caracter,in);
 			buffer[i-1] = '\0';
 			}
 			return ID;
-		case 4: if(col != 11){
-			ungetc(car,in);
+		case 4: if(columna != 11){
+			ungetc(caracter,in);
 			buffer[i-1] = '\0';
 			}
 			return  CONSTANTE;
