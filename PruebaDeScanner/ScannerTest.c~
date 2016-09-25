@@ -134,7 +134,7 @@ TOKEN scanner(){
 			ungetc(caracter,in);
 			buffer[i-1] = '\0';
 			}
-			printf("Identificador = %s \n",buffer);
+			printf("\nIdentificador = %s \n",buffer);
 			return esReservada();
 		case 4: if(col != 11){
 			ungetc(caracter,in);
