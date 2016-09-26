@@ -113,6 +113,7 @@ TOKEN scanner(){
     { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 },
     { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 } };
 
+	TOKEN t[20];
 	int caracter,col,estado,i;
 	i=estado=0;
 
@@ -134,7 +135,8 @@ TOKEN scanner(){
 			ungetc(caracter,in);
 			buffer[i-1] = '\0';
 			}
-			printf("Identificador = %s \n",buffer);
+			if(esReservada()== ID)printf("Identificador = %s \n",buffer);
+			else printf("Palabra Reservada = %s \n",buffer);
 			return esReservada();
 		case 4: if(col != 11){
 			ungetc(caracter,in);
