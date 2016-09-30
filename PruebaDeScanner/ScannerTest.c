@@ -91,7 +91,12 @@ TOKEN scanner(char * s){
 		col=columna(caracter);	
 		estado = tabla[estado][col];
 		
-		if(estadoFinal(estado) && n > k){
+		/*el problema era que cuando leia la letra siguiente al numero, el estado quedaba igualado
+		a 4 entonces por eso devolvia constante, el if siguiente soluciona eso comparando las
+		longitudes de la palabra que le pasas por linea de comando, y la longitud del buffer,
+		siempre y cuando el estado sea un estado final*/
+
+		if(estadoFinal(estado) && n > k){ 
 			estado = 14;		
 			break;
 		}		
