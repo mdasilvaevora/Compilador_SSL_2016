@@ -62,8 +62,8 @@ int estadoFinal(int e){
 
 TOKEN scanner(char * s){
 	static int tabla[NUMESTADOS][NUMCOLS] =
-{   { 1,  3,  5,  6,  7,  8,  9, 10, 11, 14, 13,  0, 14 },
-    {  1,  1,  2,  2,  2,  2,2,  2,  2,  2,  2,  2,  2 },
+{   { 1,  3,  5,  6,  7,  8,  9, 10, 11, 14, 13,  0, 14},
+    { 1,  1,  2,  2,  2,  2, 2,  2,  2,  2,  2,  2,  2},
     { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 },
     {  4,  3,  4,  4,  4,  4,  4,  4,  4, 4, 4, 4, 4 },
     { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 },
@@ -76,25 +76,48 @@ TOKEN scanner(char * s){
     { 14, 14, 14, 14, 14, 14, 14, 14, 14, 12, 14, 14, 14 },
     { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 },
     { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 },
-    { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 } };
+    { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 }};
 
 	char caracter = *s;
 	int col;
-	int estado,i;
+	int estado,i,n,k;
 	estado=i=0;
 
-	do{	col=columna(caracter);	
+	n = strlen(s);
+
+	/*printf("%s %s %d\n",s,"s antes del while",n);*/
+
+	do{	
+		col=columna(caracter);	
 		estado = tabla[estado][col];
+		
+		if(estadoFinal(estado) && n > k){
+			estado = 14;		
+			break;
+		}		
+			
+		
 		if(col != 11){
  			buffer[i] = caracter;
 			i++;
 		}
+
+		k = strlen(buffer);
+		
 		s++;
 		caracter=*s;
+	
 	}
 	while(!(estadoFinal(estado)) && !(estado == 14));
 	buffer[i] = '\0';
+	
+	/*k = strlen(buffer);*/
+	/*l = strlen(s);*/
 
+	/*printf("%s %s %d\n", s,"s despues del while",l);*/
+	/*printf("%s %s %d\n",buffer, "buffer despues del while",k);*/
+		
+	
 	switch(estado){
 		case 2: if(col != 11){
 			buffer[i-1] = '\0';
