@@ -7,43 +7,26 @@
 #include <stdio.h>
 #include <string.h>
 
-
-FILE * in;
 typedef enum{
-	INICIO, FIN, LEER, ESCRIBIR, ID, CONSTANTE, PARENIZQUIERDO, PARENDERECHO, PUNTOYCOMA,
-	COMA, ASIGNACION, SUMA, RESTA, FDT, ERRORLEXICO
+	INICIO, FIN, LEER, ESCRIBIR, ID, CONSTANTE, PARENIZQUIERDO, PARENDERECHO, PUNTOYCOMA,COMA, ASIGNACION, SUMA, RESTA, FDT, ERRORLEXICO
 	} TOKEN;
-
-typedef struct{
-    char identificador [TAMLEX];
-    TOKEN tok;
-    }RegTS;
-RegTS TS[1000]={{"inicio",INICIO},{"fin",FIN},{"leer",LEER},{"escribir",ESCRIBIR},{"$",99}};
-                                                                                  /*Centinela de fin de TS*/
 
 char buffer[TAMLEX];
 
 
-TOKEN scanner();
-int columna(int);
+TOKEN scanner(char * s);
+int columna(char);
 int estadoFinal(int);
 TOKEN esReservada();
-
-/*Para la Tabla de Simbolos*/
-int buscar(char*,RegTS*,TOKEN*);
-void colocar(char*,RegTS*);
-
 
 int main(int argc, char * argv[])
 {
 
-    char nombreArchivo[TAMNOM];
-    int lenNombreArchivo;
 
     /*Validaciones*/
 
 	if ( argc == 1 ){
-		printf("Debe ingresar el nombre del archivo fuente en la linea de comandos\n");
+		printf("Debe ingresar la palabra a reconocer por el Scanner\n");
 		 return -1;
 	}
 
@@ -51,30 +34,12 @@ int main(int argc, char * argv[])
 		printf("Numero incorrecto de argumentos\n");
 		return -2;
 	}
-
-    	strcpy(nombreArchivo, argv[1]);
-    	lenNombreArchivo = strlen(nombreArchivo);
-
-	if ( lenNombreArchivo > TAMNOM ){
-		printf("Nombre incorrecto del Archivo Fuente\n");
-		return -3;
-	}
-
-	if ( nombreArchivo[lenNombreArchivo-1] != 'm' || nombreArchivo[lenNombreArchivo-2] != '.' ){
-		printf("El nombre del Archivo Fuente debe contener una extension .m \n");
-		return -4;
-	}
-
-	if ( (in = fopen(nombreArchivo, "r") ) == NULL ){
-		printf("No se pudo abrir archivo fuente\n");
-		return -5;
-	}
-	char c;
-	while(!feof(in))scanner();
+	
+	scanner(argv[1]);
 	return 0;
 }
 
-int columna(int c){
+int columna(char c){
 	if(isalpha(c)) return 0; /* Si es una letra*/
 	if(isdigit(c)) return 1; /* Si es un digito*/
 	if(c == '+') return 2;
@@ -95,7 +60,7 @@ int estadoFinal(int e){
 }
 
 
-TOKEN scanner(){
+TOKEN scanner(char * s){
 	static int tabla[NUMESTADOS][NUMCOLS] =
 {   { 1,  3,  5,  6,  7,  8,  9, 10, 11, 14, 13,  0, 14 },
     {  1,  1,  2,  2,  2,  2,2,  2,  2,  2,  2,  2,  2 },
@@ -113,36 +78,33 @@ TOKEN scanner(){
     { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 },
     { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 } };
 
-	TOKEN t[20];
-	int caracter,col,estado,i;
-	i=estado=0;
+	char caracter = *s;
+	int col;
+	int estado,i;
+	estado=i=0;
 
-	do{
-		caracter = fgetc(in);
-		col = columna(caracter);
+	do{	col=columna(caracter);	
 		estado = tabla[estado][col];
 		if(col != 11){
  			buffer[i] = caracter;
 			i++;
 		}
+		s++;
+		caracter=*s;
 	}
 	while(!(estadoFinal(estado)) && !(estado == 14));
 	buffer[i] = '\0';
-	
 
 	switch(estado){
 		case 2: if(col != 11){
-			ungetc(caracter,in);
 			buffer[i-1] = '\0';
 			}
 			if(esReservada()== ID)printf("Identificador = %s \n",buffer);
 			else printf("Palabra Reservada = %s \n",buffer);
 			return esReservada();
 		case 4: if(col != 11){
-			ungetc(caracter,in);
 			buffer[i-1] = '\0';
 			}
-			colocar(buffer,TS);
 			printf("Constante = %s \n",buffer);return CONSTANTE;
 		case 5: printf("Suma\n");return SUMA;
 		case 6: printf("Resta\n");return RESTA;
@@ -157,21 +119,7 @@ TOKEN scanner(){
 	return 0;
 }
 
-void colocar(char * id, RegTS * TS);
-void colocar(char * id, RegTS * TS)
-{
-    /* Agrega un ID a la TS */
-    int i = 4;
-    while ( strcmp("$", TS[i].identificador) ) i++; /*Mientras no encuentre la centinela avanza en el array*/
-    if ( i < 999 )                                  /* Controla que no se exceda del tamaño maximo del array*/
-    {
-    strcpy(TS[i].identificador, id );               /*Actualiza el nombre del identificador y el token*/
-    TS[i].tok= ID;
-    strcpy(TS[++i].identificador, "$" );             /*Avanza y coloca el centinela*/
-    }
-}
 
-TOKEN esReservada();
 TOKEN esReservada(){
     if(strcmp(buffer,"inicio")==0){ return INICIO;}
     if(strcmp(buffer,"fin")==0) { return FIN;}
