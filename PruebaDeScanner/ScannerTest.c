@@ -80,48 +80,23 @@ TOKEN scanner(char * s){
 
 	char caracter = *s;
 	int col;
-	int estado,i,n,k;
+	int estado,i;
 	estado=i=0;
-
-	n = strlen(s);
-
-	/*printf("%s %s %d\n",s,"s antes del while",n);*/
 
 	do{	
 		col=columna(caracter);	
 		estado = tabla[estado][col];
 		
-		/*el problema era que cuando leia la letra siguiente al numero, el estado quedaba igualado
-		a 4 entonces por eso devolvia constante, el if siguiente soluciona eso comparando las
-		longitudes de la palabra que le pasas por linea de comando, y la longitud del buffer,
-		siempre y cuando el estado sea un estado final*/
-
-		if(estadoFinal(estado) && n > k){ 
-			estado = 14;		
-			break;
-		}		
-			
-		
 		if(col != 11){
  			buffer[i] = caracter;
 			i++;
 		}
-
-		k = strlen(buffer);
-		
 		s++;
 		caracter=*s;
 	
 	}
 	while(!(estadoFinal(estado)) && !(estado == 14));
 	buffer[i] = '\0';
-	
-	/*k = strlen(buffer);*/
-	/*l = strlen(s);*/
-
-	/*printf("%s %s %d\n", s,"s despues del while",l);*/
-	/*printf("%s %s %d\n",buffer, "buffer despues del while",k);*/
-		
 	
 	switch(estado){
 		case 2: if(col != 11){
