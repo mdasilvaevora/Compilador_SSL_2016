@@ -82,7 +82,7 @@ TOKEN scanner(char * s){
 	int col;
 	int estado,i;
 	estado=i=0;
-	char aux = s[1] ;
+
 	do{	
 		col=columna(caracter);	
 		estado = tabla[estado][col];
