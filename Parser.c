@@ -117,7 +117,7 @@ void expresion (REG_EXPRESION *resultado)
 		operadorAditivo(&op);
 		primaria(&der);
 		izq = genInfijo(izq, op, der);
-		t == proximoToken();		
+		t = proximoToken();		
 	}
 	*resultado = izq;
 }
@@ -125,7 +125,7 @@ void expresion (REG_EXPRESION *resultado)
 void primaria (REG_EXPRESION *reg)
 {
 	TOKEN t;
-	t == proximoToken();
+	t = proximoToken();
 	switch(t)
 	{
 		case ID:
